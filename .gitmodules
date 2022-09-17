@@ -1,0 +1,6 @@
+[submodule "cozy"]
+	path = cozy
+	url = https://github.com/minetest-mods/cozy.git
+[submodule "mobs_animal"]
+	path = mobs_animal
+	url = https://github.com/panqkart/mobs_animal
