@@ -193,7 +193,7 @@ register_sign("steel", minetest.get_translator("default")("Steel Sign"), {
 -- Start: code taken and modified from https://notabug.org/TenPlus1/mobs_redo
 -- This code is licensed under the MIT license.
 if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
-	function mob_class:do_env_damage()
+	function mobs.mob_class:do_env_damage()
 
 		-- feed/tame text timer (so mob 'full' messages dont spam chat)
 		if self.htimer > 0 then
@@ -224,7 +224,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 		-- particle appears at random mob height
 		local py = {
 			x = pos.x,
-			y = pos.y + random(self.collisionbox[2], self.collisionbox[5]),
+			y = pos.y + math.random(self.collisionbox[2], self.collisionbox[5]),
 			z = pos.z
 		}
 
@@ -326,8 +326,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 				damage = (self.suffocation or 2)
 			end
 
-			-- Added by team PanqKart to prevent tamed animals from dying
-			-- UNTESTED. Yet to be tested.
+			-- Added by team PanqKart to prevent tamed animals from dying.
 			if not self.tamed then
 				self.health = self.health - damage
 			end
