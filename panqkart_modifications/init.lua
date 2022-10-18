@@ -235,7 +235,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 
 			self.health = self.health - self.water_damage
 
-			effect(py, 5, "bubble.png", nil, nil, 1, nil)
+			mobs:effect(py, 5, "bubble.png", nil, nil, 1, nil)
 
 			if self:check_for_death({type = "environment",
 					pos = pos, node = self.standing_in}) then
@@ -247,7 +247,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 
 			self.health = self.health - self.lava_damage
 
-			effect(py, 15, "fire_basic_flame.png", 1, 5, 1, 0.2, 15, true)
+			mobs:effect(py, 15, "fire_basic_flame.png", 1, 5, 1, 0.2, 15, true)
 
 			if self:check_for_death({type = "environment", pos = pos,
 					node = self.standing_in, hot = true}) then
@@ -259,7 +259,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 
 			self.health = self.health - self.fire_damage
 
-			effect(py, 15, "fire_basic_flame.png", 1, 5, 1, 0.2, 15, true)
+			mobs:effect(py, 15, "fire_basic_flame.png", 1, 5, 1, 0.2, 15, true)
 
 			if self:check_for_death({type = "environment", pos = pos,
 					node = self.standing_in, hot = true}) then
@@ -272,7 +272,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 
 			self.health = self.health - nodef.damage_per_second
 
-			effect(py, 5, "tnt_smoke.png")
+			mobs:effect(py, 5, "tnt_smoke.png")
 
 			if self:check_for_death({type = "environment",
 					pos = pos, node = self.standing_in}) then
@@ -285,7 +285,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 
 			self.health = self.health - self.air_damage
 
-			effect(py, 3, "bubble.png", 1, 1, 1, 0.2)
+			mobs:effect(py, 3, "bubble.png", 1, 1, 1, 0.2)
 
 			if self:check_for_death({type = "environment",
 					pos = pos, node = self.standing_in}) then
@@ -303,7 +303,7 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 
 				self.health = self.health - self.light_damage
 
-				effect(py, 5, "tnt_smoke.png")
+				mobs:effect(py, 5, "tnt_smoke.png")
 
 				if self:check_for_death({type = "light"}) then
 					return true
