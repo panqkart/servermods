@@ -360,8 +360,8 @@ minetest.register_on_joinplayer(function(player)
     -- Secret! 🤫
     if player:get_player_name() == "Panquesito7" then
         player_api.set_texture(player, 1, "panqkart_modifications_panq_skin.png")
-    elseif player:get_player_name() == "Crystal741" then
-        player_api.set_texture(player, 1, "panqkart_modifications_girl_skin.png")
+    --elseif player:get_player_name() == "Crystal741" then
+        --player_api.set_texture(player, 1, "panqkart_modifications_crystal_skin.png")
     end
 end)
 

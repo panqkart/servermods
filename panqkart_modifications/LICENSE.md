@@ -1,9 +1,13 @@
 # License for textures/media
 
 - `panqkart_modifications_panq_skin.png` - [`character.png`](https://github.com/minetest/minetest_game/blob/master/mods/player_api/models/character.png) ([CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/)) by various Minetest Game contributors.
-- `panqkart_modifications_girl_skin.png` - to be yet specified.
 
 ## License for source code
+
+All the mods fall under their respective licenses.\
+See their license/readme file for more information about that.
+
+**If not yet specified, code falls under the license below.**
 
 Copyright (C) 2022 David Leal <halfpacho@gmail.com>
 Copyright (C) Various other Minetest developers and contributors
