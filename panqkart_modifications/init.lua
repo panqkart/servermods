@@ -26,11 +26,14 @@ USA
 
 local old_grant_revoke = core_game.grant_revoke
 function core_game.grant_revoke(name)
-    local player = minetest.get_player_by_name(name)
+	local player = minetest.get_player_by_name(name)
 	if not player then return end
 
+	local privs = minetest.get_player_privs(name)
+	if privs.core_admin == true then return old_grant_revoke(name) end
+
 	-- Builders
-	if minetest.check_player_privs(player, { builder = true } ) then
+	if privs.builder == true then
 		player:set_nametag_attributes({
 			text = "[BUILDER] " .. player:get_player_name(),
 			color = {r = 0, g = 196, b = 0},
@@ -44,7 +47,7 @@ function core_game.grant_revoke(name)
 			bgcolor = false
 		})
 	end
-    old_grant_revoke(name)
+    return old_grant_revoke(name)
 end
 
 -- Override the hand item
@@ -79,20 +82,21 @@ end
 -- Do not allow players to dig/place nodes if they don't have the `core_admin` or `builder` privilege
 local old_minetest_item_place_node = minetest.item_place_node
 function minetest.item_place_node(itemstack, placer, pointed_thing)
-	if not minetest.check_player_privs(placer, { core_admin = true }) or not minetest.check_player_privs(placer, { builder = true }) then
-		minetest.chat_send_player(placer:get_player_name(), "You're not allowed to place nodes unless you are a staff/builder. If this is a mistake, please contact the server administrator.")
-		return itemstack
+	if minetest.check_player_privs(placer, { core_admin = true }) or minetest.check_player_privs(placer, { builder = true }) then
+		return old_minetest_item_place_node(itemstack, placer, pointed_thing)
 	end
-	return old_minetest_item_place_node(itemstack, placer, pointed_thing)
+
+	minetest.chat_send_player(placer:get_player_name(), "You're not allowed to place nodes unless you are a staff/builder. If this is a mistake, please contact the server administrator.")
+	return itemstack
 end
 
 local old_minetest_node_dig = minetest.node_dig
 function minetest.node_dig(pos, node, digger)
-	if not minetest.check_player_privs(digger, { core_admin = true }) or not minetest.check_player_privs(digger, { builder = true }) then
-		minetest.chat_send_player(digger:get_player_name(), "You're not allowed to dig nodes unless you are a staff/builder. If this is a mistake, please contact the server administrator.")
-		return
+	if minetest.check_player_privs(digger, { core_admin = true }) or minetest.check_player_privs(digger, { builder = true })  then
+		return old_minetest_node_dig(pos, node, digger)
 	end
-	return old_minetest_node_dig(pos, node, digger)
+
+	minetest.chat_send_player(digger:get_player_name(), "You're not allowed to dig nodes unless you are a staff/builder. If this is a mistake, please contact the server administrator.")
 end
 
 -- Override the signs to make them unbreakable and uneditable, only by owners or those who have permissions.
@@ -153,7 +157,8 @@ local function register_sign(material, desc, def)
 		end,
 		on_receive_fields = function(pos, formname, fields, sender)
 			local player_name = sender:get_player_name()
-														-- Added by team PanqKart
+
+			-- Added by team PanqKart
 			if minetest.is_protected(pos, player_name) or default.can_interact_with_node(sender, pos) == false and not material == "wood" then
 				minetest.record_protection_violation(pos, player_name)
 				return
@@ -366,7 +371,7 @@ minetest.register_on_joinplayer(function(player)
 end)
 
 minetest.register_on_newplayer(function(player)
-    if minetest.check_player_privs(player, { ban = true, kick = true }) then
+    if minetest.check_player_privs(player, { ban = true, kick = true }) then -- Security reasons.
         minetest.set_player_privs(player, { ban = false, kick = false })
     end
 end)
