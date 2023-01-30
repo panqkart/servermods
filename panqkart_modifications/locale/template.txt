@@ -1,0 +1,4 @@
+# textdomain: panqkart_modifications
+
+You're not allowed to use beds unless you have higher privileges. Contact the server administrator if this is a mistake.=
+Can remove and add nodes, while doesn't have administrator privileges.=

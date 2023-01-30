@@ -24,6 +24,8 @@ USA
 -- Overrides --
 ----------------
 
+local S = minetest.get_translator(minetest.get_current_modname())
+
 local old_grant_revoke = core_game.grant_revoke
 function core_game.grant_revoke(name)
 	local player = minetest.get_player_by_name(name)
@@ -195,6 +197,18 @@ register_sign("steel", minetest.get_translator("default")("Steel Sign"), {
 	groups = {cracky = 2, attached_node = 1}
 })
 
+-- Do not let players sleep in beds as the spawnpoint could get messed up.
+if minetest.get_modpath("beds") then
+	local old_beds_on_rightclick = beds.on_rightclick
+	function beds.on_rightclick(pos, player)
+		if minetest.check_player_privs(player, { core_admin = true }) then
+			return old_beds_on_rightclick(pos, player)
+		end
+
+		return false, S("You're not allowed to use beds unless you have higher privileges. Contact the server administrator if this is a mistake.")
+	end
+end
+
 -- Start: code taken and modified from https://notabug.org/TenPlus1/mobs_redo
 -- This code is licensed under the MIT license.
 if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
@@ -353,7 +367,7 @@ end
 -------------------------------
 
 minetest.register_privilege("builder", {
-    description = "Can remove and add nodes, while doesn't have administrator privileges.",
+    description = S("Can remove and add nodes, while doesn't have administrator privileges."),
     give_to_singleplayer = false,
     give_to_admin = false,
 
