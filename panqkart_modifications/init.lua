@@ -1,7 +1,7 @@
 --[[
 Extra modifications for the PanqKart server.
 
-Copyright (C) 2022 David Leal (halfpacho@gmail.com)
+Copyright (C) 2022-2023 David Leal (halfpacho@gmail.com)
 Copyright (C) Various other Minetest contributors and developers
 
 This library is free software; you can redistribute it and/or
@@ -54,24 +54,28 @@ end
 
 -- Override the hand item
 -- Do not let users break any nodes but let them rightclick on items
-minetest.override_item("", {
-	range = 4,
-	tool_capabilities = {
-		full_punch_interval = 0.5,
-		max_drop_level = 3,
-		groupcaps = {
-			crumbly = nil,
-			cracky  = nil,
-			snappy  = nil,
-			choppy  = nil,
-			oddly_breakable_by_hand = nil,
-			-- dig_immediate group doesn't use value 1. Value 3 is instant dig
-			dig_immediate =
-				{times = {[2] = nil, [3] = nil}, uses = 0, maxlevel = 0},
-		},
-		damage_groups = {fleshy = 1},
-	}
-})
+minetest.register_on_mods_loaded(function()
+	minetest.after(0, function()
+		minetest.override_item("", {
+			range = 4,
+			tool_capabilities = {
+				full_punch_interval = 0.5,
+				max_drop_level = 3,
+				groupcaps = {
+					crumbly = nil,
+					cracky  = nil,
+					snappy  = nil,
+					choppy  = nil,
+					oddly_breakable_by_hand = nil,
+					-- dig_immediate group doesn't use value 1. Value 3 is instant dig
+					dig_immediate =
+						{times = {[2] = nil, [3] = nil}, uses = 0, maxlevel = 0},
+				},
+				damage_groups = {fleshy = 1},
+			}
+		})
+	end)
+end)
 
 local old_default_can_interact_with_node = default.can_interact_with_node
 function default.can_interact_with_node(player, pos)
@@ -235,18 +239,13 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 		-- halt mob if standing inside ignore node
 		if self.standing_in == "ignore" then
 
-			self.object:set_velocity({x = 0, y = 0, z = 0})
+			self.object:set_velocity(vector.new(0,0,0))
 
 			return true
 		end
 
 		-- particle appears at random mob height
-		local py = {
-			x = pos.x,
-			y = pos.y + math.random(self.collisionbox[2], self.collisionbox[5]),
-			z = pos.z
-		}
-
+		local py = vector.new(pos.x, pos.y + math.random(self.collisionbox[2], self.collisionbox[5]), pos.z)
 		local nodef = minetest.registered_nodes[self.standing_in]
 
 		-- water
