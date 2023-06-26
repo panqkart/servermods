@@ -32,7 +32,6 @@ function core_game.grant_revoke(name)
 	if not player then return end
 
 	local privs = minetest.get_player_privs(name)
-	if privs.core_admin == true then return old_grant_revoke(name) end
 
 	-- Builders
 	if privs.builder == true then
@@ -41,7 +40,6 @@ function core_game.grant_revoke(name)
 			color = {r = 0, g = 196, b = 0},
 			bgcolor = false
 		})
-		return
 	else
 		player:set_nametag_attributes({
 			text = player:get_player_name(),
@@ -49,6 +47,7 @@ function core_game.grant_revoke(name)
 			bgcolor = false
 		})
 	end
+
     return old_grant_revoke(name)
 end
 

@@ -1,9 +1,0 @@
-[submodule "cozy"]
-	path = cozy
-	url = https://github.com/minetest-mods/cozy.git
-[submodule "mobs_animal"]
-	path = mobs_animal
-	url = https://github.com/panqkart/mobs_animal
-[submodule "mobs_redo"]
-	path = mobs_redo
-	url = https://notabug.org/TenPlus1/mobs_redo
