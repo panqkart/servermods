@@ -25,7 +25,7 @@ local use_cmi = minetest.global_exists("cmi")
 
 mobs = {
 	mod = "redo",
-	version = "20230613",
+	version = "20230702",
 	intllib = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {}
 }
@@ -2873,10 +2873,17 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 		end
 	end
 
+	-- check if hit by player item or entity
+	local hit_item = weapon_def.name
+
+	if not hitter:is_player() then
+		hit_item = hitter:get_luaentity().name
+	end
+
 	-- check for tool immunity or special damage
 	for n = 1, #self.immune_to do
 
-		if self.immune_to[n][1] == weapon_def.name then
+		if self.immune_to[n][1] == hit_item then
 
 			damage = self.immune_to[n][2] or 0
 
