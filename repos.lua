@@ -1,7 +1,7 @@
 local repos = {
     {
         name = "cozy",
-        url = "https://github.com/minetest-mods/cozy.git",
+        url = "https://github.com/minetest-mods/cozy",
         dir = ""
     },
     {
