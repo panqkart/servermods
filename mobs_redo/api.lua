@@ -25,7 +25,7 @@ local use_cmi = minetest.global_exists("cmi")
 
 mobs = {
 	mod = "redo",
-	version = "20230702",
+	version = "20230715",
 	intllib = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {}
 }
@@ -2051,6 +2051,7 @@ function mob_class:do_runaway_from()
 	local min_dist = self.view_range + 1
 	local objs = minetest.get_objects_inside_radius(s, self.view_range)
 
+	-- loop through entities surrounding mob
 	for n = 1, #objs do
 
 		if objs[n]:is_player() then
@@ -2098,6 +2099,20 @@ function mob_class:do_runaway_from()
 	if min_player then
 
 		yaw_to_pos(self, min_player:get_pos(), 3)
+
+		self.state = "runaway"
+		self.runaway_timer = 3
+		self.following = nil
+
+		return
+	end
+
+	-- check for nodes to runaway from
+	objs = minetest.find_node_near(s, self.view_range, self.runaway_from, true)
+
+	if objs then
+
+		yaw_to_pos(self, objs, 3)
 
 		self.state = "runaway"
 		self.runaway_timer = 3
