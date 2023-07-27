@@ -1,7 +1,19 @@
 -- lib_mount by Blert2112 (edited by TenPlus1)
 
-local is_50 = minetest.get_modpath("player_api") -- 5.x compatibility
+-- one of these is needed (for now) to ride mobs, otherwise no riding for you
+if not minetest.get_modpath("default")
+or not minetest.get_modpath("player_api") then
 
+	function mobs.attach() end
+	function mobs.detach() end
+	function mobs.fly() end
+	function mobs.drive() end
+
+	return
+end
+
+
+local is_50 = minetest.get_modpath("player_api") -- 5.x compatibility
 local abs, cos, floor, sin, sqrt, pi =
 		math.abs, math.cos, math.floor, math.sin, math.sqrt, math.pi
 
@@ -162,6 +174,15 @@ local function find_free_pos(pos)
 end
 
 
+-- are we a real player ?
+local function is_player(player)
+
+	if player and type(player) == "userdata" and minetest.is_player(player) then
+		return true
+	end
+end
+
+
 function mobs.attach(entity, player)
 
 	entity.player_rotation = entity.player_rotation or {x = 0, y = 0, z = 0}
@@ -200,7 +221,7 @@ function mobs.attach(entity, player)
 
 	minetest.after(0.2, function()
 
-		if player and player:is_player() then
+		if is_player(player) then
 
 			if is_50 then
 				player_api.set_animation(player, "sit", 30)
