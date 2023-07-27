@@ -1,8 +1,17 @@
 
 local S = mobs.intllib
 
--- mob spawner
 
+-- are we a real player ?
+local function is_player(player)
+
+	if player and type(player) == "userdata" and minetest.is_player(player) then
+		return true
+	end
+end
+
+
+-- mob spawner
 local spawner_default = "mobs_animal:pumba 10 15 0 0 0"
 
 minetest.register_node("mobs:spawner", {
@@ -148,7 +157,7 @@ minetest.register_abm({
 
 			for _, oir in pairs(objsp) do
 
-				if oir:is_player() then
+				if is_player(oir) then
 
 					in_range = 1
 

@@ -7,6 +7,7 @@ minetest.register_privilege("peaceful_player", {
 	give_to_singleplayer = false
 })
 
+
 -- Mob API
 dofile(path .. "/api.lua")
 
