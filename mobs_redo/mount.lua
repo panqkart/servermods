@@ -1,6 +1,6 @@
 -- lib_mount by Blert2112 (edited by TenPlus1)
 
--- one of these is needed (for now) to ride mobs, otherwise no riding for you
+--[[ one of these is needed (for now) to ride mobs, otherwise no riding for you
 if not minetest.get_modpath("default")
 or not minetest.get_modpath("player_api") then
 
@@ -11,9 +11,11 @@ or not minetest.get_modpath("player_api") then
 
 	return
 end
-
+]]
 
 local is_50 = minetest.get_modpath("player_api") -- 5.x compatibility
+local is_mc2 = minetest.get_modpath("mcl_mobs") -- MineClone2 compatibility
+
 local abs, cos, floor, sin, sqrt, pi =
 		math.abs, math.cos, math.floor, math.sin, math.sqrt, math.pi
 
@@ -87,9 +89,7 @@ end
 
 local function force_detach(player)
 
-	if not player then return end
-
-	local attached_to = player:get_attach()
+	local attached_to = player and player:get_attach()
 
 	if not attached_to then
 		return
@@ -97,8 +97,7 @@ local function force_detach(player)
 
 	local entity = attached_to:get_luaentity()
 
-	if entity and entity.driver
-	and entity.driver == player then
+	if entity and entity.driver and entity.driver == player then
 		entity.driver = nil
 	end
 
@@ -109,6 +108,9 @@ local function force_detach(player)
 	if is_50 then
 		player_api.player_attached[name] = false
 		player_api.set_animation(player, "stand", 30)
+	elseif is_mc2 then
+		mcl_player.player_attached[player:get_player_name()] = false
+		mcl_player.player_set_animation(player, "stand", 30)
 	else
 		default.player_attached[name] = false
 		default.player_set_animation(player, "stand", 30)
@@ -163,8 +165,7 @@ local function find_free_pos(pos)
 
 			local def = minetest.registered_nodes[node.name]
 
-			if def and not def.walkable and
-					def.liquidtype == "none" then
+			if def and not def.walkable and def.liquidtype == "none" then
 				return npos
 			end
 		end
@@ -205,6 +206,8 @@ function mobs.attach(entity, player)
 
 	if is_50 then
 		player_api.player_attached[player:get_player_name()] = true
+	elseif is_mc2 then
+		mcl_player.player_attached[player:get_player_name()] = true
 	else
 		default.player_attached[player:get_player_name()] = true
 	end
@@ -225,6 +228,8 @@ function mobs.attach(entity, player)
 
 			if is_50 then
 				player_api.set_animation(player, "sit", 30)
+			elseif is_mc2 then
+				mcl_player.player_set_animation(player, "sit_mount" , 30)
 			else
 				default.player_set_animation(player, "sit", 30)
 			end
@@ -272,13 +277,11 @@ function mobs.drive(entity, moving_anim, stand_anim, can_fly, dtime)
 
 		local ctrl = entity.driver:get_player_control()
 
-		-- move forwards
-		if ctrl.up then
+		if ctrl.up then -- move forwards
 
 			entity.v = entity.v + entity.accel * dtime
 
-		-- move backwards
-		elseif ctrl.down then
+		elseif ctrl.down then -- move backwards
 
 			if entity.max_speed_reverse == 0 and entity.v == 0 then
 				return
@@ -308,8 +311,7 @@ function mobs.drive(entity, moving_anim, stand_anim, can_fly, dtime)
 
 		if can_fly then
 
-			-- fly up
-			if ctrl.jump then
+			if ctrl.jump then -- fly up
 
 				velo.y = velo.y + 1
 
@@ -322,8 +324,7 @@ function mobs.drive(entity, moving_anim, stand_anim, can_fly, dtime)
 				if velo.y < 0 then velo.y = 0 end
 			end
 
-			-- fly down
-			if ctrl.sneak then
+			if ctrl.sneak then -- fly down
 
 				velo.y = velo.y - 1
 
@@ -336,8 +337,7 @@ function mobs.drive(entity, moving_anim, stand_anim, can_fly, dtime)
 				if velo.y > 0 then velo.y = 0 end
 			end
 		else
-			-- jump
-			if ctrl.jump then
+			if ctrl.jump then -- jump
 
 				if velo.y == 0 then
 					velo.y = velo.y + entity.jump_height
@@ -470,11 +470,9 @@ end
 function mobs.fly(entity, _, speed, shoots, arrow, moving_anim, stand_anim)
 
 	local ctrl = entity.driver:get_player_control() ; if not ctrl then return end
-	local velo = entity.object:get_velocity()
+	local velo = entity.object:get_velocity() ; if not velo then return end
 	local dir = entity.driver:get_look_dir()
 	local yaw = entity.driver:get_look_horizontal() + 1.57
-
-	if not ctrl or not velo then return end
 
 	if ctrl.up then
 
