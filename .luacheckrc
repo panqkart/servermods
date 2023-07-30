@@ -14,7 +14,7 @@ read_globals = {
     "ItemStack", "intllib", "cmi",
     "invisibility", "toolranks", "tnt",
 
-    "vector", "farming", "player_monoids"
+    "vector", "farming", "player_monoids", "pova"
 }
 
 -- Ignore Mobs Redo warnings. Those should be fixed/reported upstream.
