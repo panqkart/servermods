@@ -186,6 +186,8 @@ end
 
 function mobs.attach(entity, player)
 
+	if not player then return end
+
 	entity.player_rotation = entity.player_rotation or {x = 0, y = 0, z = 0}
 	entity.driver_attach_at = entity.driver_attach_at or {x = 0, y = 0, z = 0}
 	entity.driver_eye_offset = entity.driver_eye_offset or {x = 0, y = 0, z = 0}
