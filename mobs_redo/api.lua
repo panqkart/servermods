@@ -88,6 +88,7 @@ local mob_chance_multiplier = tonumber(settings:get("mob_chance_multiplier") or 
 local peaceful_player_enabled = settings:get_bool("enable_peaceful_player")
 local mob_smooth_rotate = settings:get_bool("mob_smooth_rotate") ~= false
 local mob_height_fix = settings:get_bool("mob_height_fix") ~= false
+local mob_log_spawn = settings:get_bool("mob_log_spawn") == true
 local active_mobs = 0
 
 -- get loop timers for node and main functions
@@ -4099,6 +4100,12 @@ function mobs:spawn_specific(name, nodes, neighbors, min_light, max_light, inter
 --		print("[mobs] Spawned " .. name .. " at "
 --		.. minetest.pos_to_string(pos) .. " on "
 --		.. node.name .. " near " .. neighbors[1])
+
+			if mob_log_spawn then
+
+				minetest.log("[MOBS] Spawned " .. name .. " at "
+					.. minetest.pos_to_string(pos))
+			end
 
 			if on_spawn and mob then
 				on_spawn(mob:get_luaentity(), pos)

@@ -744,6 +744,7 @@ the tools own meta to override the default.
 External Settings for "minetest.conf"
 ------------------------------------
 
+   'mob_log_spawn'           When True will log spawning position of mobs.
    'mob_node_timer_interval' How often mobs get nodes around them (0.25 is default)
                              for every 1/4 second.
    'mob_main_timer_interval' How often mobs run main functions (1.0 is default) for

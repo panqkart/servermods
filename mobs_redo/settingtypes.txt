@@ -58,6 +58,8 @@ mob_smooth_rotate (Smooth rotation for mobs) bool true
 #   Fix Mob Height if too low so they cannot escape through specific nodes
 mob_height_fix (Fix Mob Height) bool true
 
+mob_log_spawn (Log Mob Spawning) bool false
+
 [Pathfinding]
 #    Enable pathfinding (default Enabled)
 mob_pathfinding_enable (Enable pathfinding) bool true
