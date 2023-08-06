@@ -25,7 +25,7 @@ local use_cmi = minetest.global_exists("cmi")
 
 mobs = {
 	mod = "redo",
-	version = "20230726",
+	version = "20230805",
 	intllib = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"] or "mcl_core:snow",
@@ -275,7 +275,6 @@ function mob_class:collision()
 
 	local pos = self.object:get_pos() ; if not pos then return {0, 0} end
 	local x, z = 0, 0
-	local vel = self.object:get_velocity()
 	local width = -self.collisionbox[1] + self.collisionbox[4] + 0.5
 
 	for _,object in ipairs(minetest.get_objects_inside_radius(pos, width)) do
@@ -362,7 +361,7 @@ function mob_class:set_velocity(v)
 	end
 
 	-- set velocity
-	local vel = self.object:get_velocity() or 0
+	local vel = self.object:get_velocity() or {x = 0, y = 0, z = 0}
 
 	local new_vel = {
 		x = (sin(yaw) * -v) + c_x,
@@ -1262,26 +1261,24 @@ function mob_class:do_jump()
 	and not self.facing_fence
 	and self.looking_at ~= mobs.node_snow then
 
-		local v = self.object:get_velocity()
-
-		v.y = self.jump_height
+		vel.y = self.jump_height
 
 		self:set_animation("jump") -- only if defined
 
-		self.object:set_velocity(v)
+		self.object:set_velocity(vel)
 
 		-- when in air move forward
-		minetest.after(0.3, function(self, v)
+		minetest.after(0.3, function(self, vel)
 
 			if self.object:get_luaentity() then
 
 				self.object:set_acceleration({
-					x = v.x * 2,
+					x = vel.x * 2,
 					y = 0,
-					z = v.z * 2
+					z = vel.z * 2
 				})
 			end
-		end, self, v)
+		end, self, vel)
 
 		if self:get_velocity() > 0 then
 			self:mob_sound(self.sounds.jump)
