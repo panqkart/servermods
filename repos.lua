@@ -22,5 +22,6 @@ local repos = {
 }
 
 return {
-    repos = repos
+    repos = repos,
+    config = config
 }
