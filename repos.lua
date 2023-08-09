@@ -1,3 +1,7 @@
+local config = {
+    labels_update = "dependencies",
+}
+
 local repos = {
     {
         name = "cozy",
