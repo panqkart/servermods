@@ -346,6 +346,7 @@ Internal Variables
 The mob api also has some preset variables and functions that it will remember
 for each mob.
 
+   'self._cmi_is_mob'   Used to determine wether entity is a mobs redo mob when True.
    'self.health'        contains current health of mob (cannot exceed
                         self.hp_max)
    'self.texture_list'  contains list of all mob textures
