@@ -1,5 +1,6 @@
 
-local S = mobs.intllib
+local S = mobs.translate
+local FS = function(...) return minetest.formspec_escape(S(...)) end
 local mc2 = minetest.get_modpath("mcl_core")
 
 -- recipe items
@@ -326,9 +327,9 @@ minetest.register_tool(":mobs:mob_reset_stick", {
 
 			minetest.show_formspec(name, "mobs_texture", "size[8,4]"
 			.. "field[0.5,1;7.5,0;name;"
-			.. minetest.formspec_escape(S("Enter texture:")) .. ";" .. bt .. "]"
+			.. FS("Enter texture:") .. ";" .. bt .. "]"
 			.. "button_exit[2.5,3.5;3,1;mob_texture_change;"
-			.. minetest.formspec_escape(S("Change")) .. "]")
+			.. FS("Change") .. "]")
 		end
 	end
 })

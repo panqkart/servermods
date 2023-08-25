@@ -1,38 +1,25 @@
--- Check for translation method
-local S
-if minetest.get_translator ~= nil then
-	S = minetest.get_translator("mobs") -- 5.x translation function
-else
-	if minetest.get_modpath("intllib") then
-		dofile(minetest.get_modpath("intllib") .. "/init.lua")
-		if intllib.make_gettext_pair then
-			S = intllib.make_gettext_pair() -- new gettext method
-		else
-			S = intllib.Getter() -- old text file method
-		end
-	else -- boilerplate function
-		S = function(str, ...)
-			local args = {...}
-			return str:gsub("@%d+", function(match)
-				return args[tonumber(match:sub(2))]
-			end)
-		end
-	end
-end
+-- Translation support
+local S = minetest.get_translator("mobs")
+local FS = function(...) return minetest.formspec_escape(S(...)) end
 
 -- CMI support check
 local use_cmi = minetest.global_exists("cmi")
 
+-- MineClone2 check
+local use_mc2 = minetest.get_modpath("mcl_core")
+
+-- Global
 mobs = {
 	mod = "redo",
-	version = "20230807",
-	intllib = S,
+	version = "20230817",
+	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
-	node_snow = minetest.registered_aliases["mapgen_snow"] or "mcl_core:snow",
-	node_dirt = minetest.registered_aliases["mapgen_dirt"] or "mcl_core:dirt"
+	node_snow = minetest.registered_aliases["mapgen_snow"]
+			or (use_mc2 and "mcl_core:snow") or "default:snow",
+	node_dirt = minetest.registered_aliases["mapgen_dirt"]
+			or (use_mc2 and "mcl_core:dirt") or "default:dirt"
 }
 mobs.fallback_node = mobs.node_dirt
-
 
 -- localize common functions
 local pi = math.pi
@@ -3056,15 +3043,15 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 		self.following = nil
 	end
 
-	local name = hitter:get_player_name() or ""
+	local hitter_name = hitter:get_player_name() or ""
 
 	-- attack puncher and call other mobs for help
 	if self.passive == false
 	and self.state ~= "flop"
 	and self.child == false
 	and self.attack_players == true
-	and hitter:get_player_name() ~= self.owner
-	and not is_invisible(self, name)
+	and not (is_player(hitter) and hitter_name == self.owner)
+	and not is_invisible(self, hitter_name)
 	and self.object ~= hitter then
 
 		-- attack whoever punched mob
@@ -3073,25 +3060,25 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 
 		-- alert others to the attack
 		local objs = minetest.get_objects_inside_radius(hitter:get_pos(), self.view_range)
-		local obj
+		local ent
 
 		for n = 1, #objs do
 
-			obj = objs[n]:get_luaentity()
+			ent = objs[n] and objs[n]:get_luaentity()
 
-			if obj and obj._cmi_is_mob then
+			if ent and ent._cmi_is_mob then
 
 				-- only alert members of same mob and assigned helper
-				if obj.group_attack == true
-				and obj.state ~= "attack"
-				and obj.owner ~= name
-				and (obj.name == self.name or obj.name == self.group_helper) then
-					obj:do_attack(hitter)
+				if ent.group_attack == true
+				and ent.state ~= "attack"
+				and not (is_player(hitter) and ent.owner == hitter_name)
+				and (ent.name == self.name or ent.name == self.group_helper) then
+					ent:do_attack(hitter)
 				end
 
 				-- have owned mobs attack player threat
-				if obj.owner == name and obj.owner_loyal then
-					obj:do_attack(self.object)
+				if is_player(hitter) and ent.owner == hitter_name and ent.owner_loyal then
+					ent:do_attack(self.object)
 				end
 			end
 		end
@@ -3365,7 +3352,7 @@ function mob_class:mob_expire(pos, dtime)
 				end
 			end
 
---			minetest.log("action", S("lifetimer expired, removed @1", self.name))
+--			minetest.log("action", "lifetimer expired, removed " .. self.name)
 
 			effect(pos, 15, "tnt_smoke.png", 2, 4, 2, 0)
 
@@ -4765,10 +4752,10 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 		minetest.show_formspec(name, "mobs_nametag",
 			"size[8,4]" ..
 			"field[0.5,1;7.5,0;name;" ..
-			esc(S("Enter name:")) ..
+			esc(FS("Enter name:")) ..
 			";" .. tag .. "]" ..
 			"button_exit[2.5,3.5;3,1;mob_rename;" ..
-			esc(S("Rename")) .. "]")
+			esc(FS("Rename")) .. "]")
 
 		return true
 	end
@@ -4783,9 +4770,9 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 			end
 
 			minetest.chat_send_player(clicker:get_player_name(),
-					S("@1 follows:\n- @2",
-					self.name:split(":")[2],
-					table.concat(self.follow, "\n- ")))
+					S("@1 follows:",
+					self.name:split(":")[2]) .. "\n" ..
+					table.concat(self.follow, "\n- "))
 		end
 	end
 
