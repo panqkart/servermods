@@ -21,6 +21,9 @@ dofile(path .. "/crafts.lua")
 dofile(path .. "/spawner.lua")
 
 -- Lucky Blocks
-dofile(path .. "/lucky_block.lua")
+if minetest.get_modpath("lucky_block") then
+	dofile(path .. "/lucky_block.lua")
+end
+
 
 print("[MOD] Mobs Redo loaded")

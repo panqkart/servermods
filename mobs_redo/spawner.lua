@@ -1,5 +1,5 @@
 
-local S = mobs.intllib
+local S = mobs.translate
 
 
 -- are we a real player ?
@@ -31,8 +31,7 @@ minetest.register_node("mobs:spawner", {
 				.. " (player distance) (Y offset)")
 
 		-- text entry formspec
-		meta:set_string("formspec",
-			"size[10,3.5]"
+		meta:set_string("formspec", "size[10,3.5]"
 			.. "label[0.15,0.5;" .. minetest.formspec_escape(head) .. "]"
 			.. "field[1,2.5;8.5,0.8;text;" .. S("Command:")
 			.. ";${command}]")
