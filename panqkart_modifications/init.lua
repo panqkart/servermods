@@ -164,7 +164,7 @@ local function register_sign(material, desc, def)
 			local player_name = sender:get_player_name()
 
 			-- Added by team PanqKart
-			if minetest.is_protected(pos, player_name) or default.can_interact_with_node(sender, pos) == false and not material == "wood" then
+			if minetest.is_protected(pos, player_name) or default.can_interact_with_node(sender, pos) == false and material == not "wood" then
 				minetest.record_protection_violation(pos, player_name)
 				return
 			end
