@@ -11,7 +11,7 @@ local use_mc2 = minetest.get_modpath("mcl_core")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20230817",
+	version = "20230923",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -126,17 +126,17 @@ local creatura = minetest.get_modpath("creatura") and
 
 
 mobs.mob_class = {
-	stepheight = 1.1,
+--	stepheight = 1.1,
 	fly_in = "air",
 	owner = "",
 	order = "",
 	jump_height = 4,
 	lifetimer = 180, -- 3 minutes
-	physical = true,
-	collisionbox = {-0.25, -0.25, -0.25, 0.25, 0.25, 0.25},
-	visual_size = {x = 1, y = 1},
+--	physical = true,
+--	collisionbox = {-0.25, -0.25, -0.25, 0.25, 0.25, 0.25},
+--	visual_size = {x = 1, y = 1},
 	texture_mods = "",
-	makes_footstep_sound = false,
+--	makes_footstep_sound = false,
 	view_range = 5,
 	walk_velocity = 1,
 	run_velocity = 2,
@@ -733,7 +733,7 @@ local CHILD_GROW_TIME = 60 * 20 -- 20 minutes
 function mob_class:update_tag()
 
 	local col
-	local qua = self.hp_max / 6
+	local qua = self.initial_properties.hp_max / 6
 
 	if self.health <= qua then
 		col = "#FF0000"
@@ -767,7 +767,7 @@ function mob_class:update_tag()
 		end
 	end
 
-	self.infotext = "Health: " .. self.health .. " / " .. self.hp_max
+	self.infotext = "Health: " .. self.health .. " / " .. self.initial_properties.hp_max
 		.. (self.owner == "" and "" or "\nOwner: " .. self.owner)
 		.. text
 
@@ -903,8 +903,8 @@ function mob_class:check_for_death(cmi_cause)
 		end
 
 		-- make sure health isn't higher than max
-		if self.health > self.hp_max then
-			self.health = self.hp_max
+		if self.health > self.initial_properties.hp_max then
+			self.health = self.initial_properties.hp_max
 		end
 
 		self:update_tag()
@@ -1743,7 +1743,7 @@ function mob_class:smart_mobs(s, p, dist, dtime)
 		end, self)
 	end
 
-	if abs(vsubtract(s, target_pos).y) > self.stepheight then
+	if abs(vsubtract(s, target_pos).y) > self.initial_properties.stepheight then
 
 		if height_switcher then
 			use_pathfind = true
@@ -1789,7 +1789,7 @@ function mob_class:smart_mobs(s, p, dist, dtime)
 			jumpheight = min(ceil(
 					self.jump_height / pathfinding_max_jump), pathfinding_max_jump)
 
-		elseif self.stepheight > 0.5 then
+		elseif self.initial_properties.stepheight > 0.5 then
 			jumpheight = 1
 		end
 
@@ -2959,9 +2959,11 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 		-- add healthy afterglow when hit (can cause lag with larger textures)
 		if mob_hit_effect then
 
+			local _dtm = self.initial_properties.damage_texture_modifier
+
 			self.old_texture_mods = self.texture_mods
 
-			self.object:set_texture_mod(self.texture_mods .. self.damage_texture_modifier)
+			self.object:set_texture_mod(self.texture_mods .. _dtm)
 
 			minetest.after(0.3, function()
 
@@ -3209,11 +3211,12 @@ function mob_class:mob_activate(staticdata, def, dtime)
 			def.textures = {def.textures}
 		end
 
-		self.base_texture = def.textures and def.textures[random(#def.textures)]
+		self.base_texture = def.textures
+				and def.textures[random(#def.textures)]
 		self.base_mesh = def.mesh
-		self.base_size = self.visual_size
-		self.base_colbox = self.collisionbox
-		self.base_selbox = self.selectionbox
+		self.base_size = self.initial_properties.visual_size
+		self.base_colbox = self.initial_properties.collisionbox
+		self.base_selbox = self.initial_properties.selectionbox
 	end
 
 	-- for current mobs that dont have this set
@@ -3259,7 +3262,7 @@ function mob_class:mob_activate(staticdata, def, dtime)
 	end
 
 	if self.health == 0 then
-		self.health = random(self.hp_min, self.hp_max)
+		self.health = random(self.hp_min, self.initial_properties.hp_max)
 	end
 
 	-- pathfinding init
@@ -3292,7 +3295,7 @@ function mob_class:mob_activate(staticdata, def, dtime)
 	self.standing_on = "air"
 
 	-- check for existing nametag
-	self.nametag = self.nametag or def.nametag
+	self.nametag = self.initial_properties.nametag or def.nametag
 
 	-- set anything changed above
 	self.object:set_properties(self)
@@ -3593,7 +3596,44 @@ function mobs:register_mob(name, def)
 
 minetest.register_entity(":" .. name, setmetatable({
 
-	stepheight = def.stepheight,
+	initial_properties = {
+
+		hp_max = max(1, (def.hp_max or 10) * difficulty),
+--		breath_max
+--		zoom_fov
+--		eye_height
+		physical = true,
+--		collide_with_objects
+		collisionbox = collisionbox,
+		selectionbox = def.selectionbox or collisionbox,
+--		pointable
+		visual = def.visual,
+		visual_size = def.visual_size,
+		mesh = def.mesh,
+		textures = nil,
+--		colors
+--		use_texture_alpha
+--		spritediv
+--		initial_sprite_basepos
+--		is_visible
+		make_footstep_sound = def.make_footstep_sound,
+--		automatic_rotate
+		stepheight = def.stepheight or 1.1,
+--		automatic_face_movement_dir
+--		automatic_face_movement_max_rotation_per_sec
+--		backface_culling
+		glow = def.glow,
+--		nametag
+--		nametag_color
+--		nametag_bgcolor
+--		infotext
+--		static_save
+		damage_texture_modifier = def.damage_texture_modifier or "^[colorize:#c9900070",
+--		shaded
+--		show_on_minimap
+	},
+
+--	stepheight = def.stepheight,
 	name = name,
 	type = def.type,
 	attack_type = def.attack_type,
@@ -3609,22 +3649,22 @@ minetest.register_entity(":" .. name, setmetatable({
 	can_leap = def.can_leap,
 	drawtype = def.drawtype, -- DEPRECATED, use rotate instead
 	rotate = rad(def.rotate or 0), -- 0=front 90=side 180=back 270=side2
-	glow = def.glow,
+--	glow = def.glow,
 	lifetimer = def.lifetimer,
 	hp_min = max(1, (def.hp_min or 5) * difficulty),
-	hp_max = max(1, (def.hp_max or 10) * difficulty),
-	collisionbox = collisionbox, --def.collisionbox,
-	selectionbox = def.selectionbox or collisionbox, --def.collisionbox,
-	visual = def.visual,
-	visual_size = def.visual_size,
-	mesh = def.mesh,
-	makes_footstep_sound = def.makes_footstep_sound,
+--	hp_max = max(1, (def.hp_max or 10) * difficulty),
+--	collisionbox = collisionbox,
+--	selectionbox = def.selectionbox or collisionbox,
+--	visual = def.visual,
+--	visual_size = def.visual_size,
+--	mesh = def.mesh,
+--	makes_footstep_sound = def.makes_footstep_sound,
 	view_range = def.view_range,
 	walk_velocity = def.walk_velocity,
 	run_velocity = def.run_velocity,
 	damage = max(0, (def.damage or 0) * difficulty),
 	damage_group = def.damage_group,
-	damage_texture_modifier = def.damage_texture_modifier or "^[colorize:#c9900070",
+--	damage_texture_modifier = def.damage_texture_modifier or "^[colorize:#c9900070",
 	light_damage = def.light_damage,
 	light_damage_min = def.light_damage_min,
 	light_damage_max = def.light_damage_max,
@@ -3637,7 +3677,6 @@ minetest.register_entity(":" .. name, setmetatable({
 	fall_speed = def.fall_speed,
 	drops = def.drops,
 	armor = def.armor,
-	on_rightclick = def.on_rightclick,
 	arrow = def.arrow,
 	arrow_override = def.arrow_override,
 	shoot_interval = def.shoot_interval,
@@ -3658,7 +3697,6 @@ minetest.register_entity(":" .. name, setmetatable({
 	replace_what = def.replace_what,
 	replace_with = def.replace_with,
 	replace_offset = def.replace_offset,
-	on_replace = def.on_replace,
 	reach = def.reach,
 	texture_list = def.textures,
 	texture_mods = def.texture_mods or "",
@@ -3673,7 +3711,6 @@ minetest.register_entity(":" .. name, setmetatable({
 	explosion_timer = def.explosion_timer,
 	allow_fuse_reset = def.allow_fuse_reset,
 	stop_to_explode = def.stop_to_explode,
-	custom_attack = def.custom_attack,
 	double_melee_attack = def.double_melee_attack,
 	dogshoot_switch = def.dogshoot_switch,
 	dogshoot_count_max = def.dogshoot_count_max,
@@ -3694,6 +3731,9 @@ minetest.register_entity(":" .. name, setmetatable({
 	ignore_invisibility = def.ignore_invisibility,
 	messages = def.messages,
 
+	custom_attack = def.custom_attack,
+	on_replace = def.on_replace,
+	on_rightclick = def.on_rightclick,
 	on_spawn = def.on_spawn,
 	on_blast = def.on_blast, -- class redifinition
 	do_punch = def.do_punch,
@@ -4053,12 +4093,13 @@ function mobs:spawn_specific(name, nodes, neighbors, min_light, max_light, inter
 		end
 
 		local ent = minetest.registered_entities[name]
+		local cbox = ent.initial_properties.collisionbox
 
 		-- should we check mob area for obstructions ?
 		if mob_area_spawn ~= true then
 
 			-- do we have enough height clearance to spawn mob?
-			local height = max(0, ent.collisionbox[5] - ent.collisionbox[2])
+			local height = max(0, cbox[5] - cbox[2])
 
 			for n = 0, floor(height) do
 
@@ -4077,7 +4118,7 @@ function mobs:spawn_specific(name, nodes, neighbors, min_light, max_light, inter
 		if pos then
 
 			-- adjust for mob collision box
-			pos.y = pos.y + (ent.collisionbox[2] * -1) - 0.4
+			pos.y = pos.y + (cbox[2] * -1) - 0.4
 
 			local mob = minetest.add_entity(pos, name)
 
@@ -4166,27 +4207,30 @@ function mobs:register_arrow(name, def)
 
 	minetest.register_entity(":" .. name, {
 
-		physical = def.physical or false,
-		collide_with_objects = def.collide_with_objects or false,
-		static_save = false,
+		initial_properties = {
 
-		visual = def.visual,
-		visual_size = def.visual_size,
-		textures = def.textures,
+			physical = def.physical or false,
+			collide_with_objects = def.collide_with_objects or false,
+			static_save = false,
+			visual = def.visual,
+			visual_size = def.visual_size,
+			textures = def.textures,
+			collisionbox = def.collisionbox or {-.1, -.1, -.1, .1, .1, .1},
+			glow = def.glow,
+			automatic_face_movement_dir = def.rotate and (def.rotate - (pi / 180)) or false,
+		},
+
 		velocity = def.velocity,
 		hit_player = def.hit_player,
 		hit_node = def.hit_node,
 		hit_mob = def.hit_mob,
 		hit_object = def.hit_object,
 		drop = def.drop or false, -- drops arrow as registered item when true
-		collisionbox = def.collisionbox or {-.1, -.1, -.1, .1, .1, .1},
 		timer = 0,
 		lifetime = def.lifetime or 4.5,
 		switch = 0,
 		owner_id = def.owner_id,
 		rotate = def.rotate,
-		automatic_face_movement_dir = def.rotate
-			and (def.rotate - (pi / 180)) or false,
 
 		on_activate = def.on_activate,
 
@@ -4679,9 +4723,9 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 		-- increase health
 		self.health = self.health + 4
 
-		if self.health >= self.hp_max then
+		if self.health >= self.initial_properties.hp_max then
 
-			self.health = self.hp_max
+			self.health = self.initial_properties.hp_max
 		end
 
 		self.object:set_hp(self.health)
@@ -4838,7 +4882,10 @@ function mobs:alias_mob(old_name, new_name)
 	-- entity
 	minetest.register_entity(":" .. old_name, {
 
-		physical = false, static_save = false,
+		initial_properties = {
+			physical = false,
+			static_save = false
+		},
 
 		on_activate = function(self, staticdata)
 
