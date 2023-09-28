@@ -11,7 +11,7 @@ local use_mc2 = minetest.get_modpath("mcl_core")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20230926",
+	version = "20230927",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -1493,18 +1493,20 @@ function mob_class:breed()
 						if self:on_breed(ent) == false then
 							return
 						end
-					else
-						effect(pos, 15, "tnt_smoke.png", 1, 2, 2, 15, 5)
 					end
 
-					pos.y = pos.y + 0.5 -- spawn child a little higher
+					-- add baby
+					local ent2 = mobs:add_mob(pos, {
+						name = self.name,
+						child = true,
+						owner = self.owner,
+						ignore_count = true
+					})
 
-					local mob = minetest.add_entity(pos, self.name)
-					local ent2 = mob:get_luaentity()
-					local textures = self.base_texture
-
-					-- make sure baby is actually there
+					-- set baby textures
 					if ent2 then
+
+						local textures = self.base_texture
 
 						-- using specific child texture (if found)
 						if self.child_texture then
@@ -1512,35 +1514,6 @@ function mob_class:breed()
 							ent2.mommy_tex = self.base_texture
 						end
 
-						-- and resize to half height
-						mob:set_properties({
-							textures = textures,
-							visual_size = {
-								x = self.base_size.x * .5,
-								y = self.base_size.y * .5
-							},
-							collisionbox = {
-								self.base_colbox[1] * .5,
-								self.base_colbox[2] * .5,
-								self.base_colbox[3] * .5,
-								self.base_colbox[4] * .5,
-								self.base_colbox[5] * .5,
-								self.base_colbox[6] * .5
-							},
-							selectionbox = {
-								self.base_selbox[1] * .5,
-								self.base_selbox[2] * .5,
-								self.base_selbox[3] * .5,
-								self.base_selbox[4] * .5,
-								self.base_selbox[5] * .5,
-								self.base_selbox[6] * .5
-							}
-						})
-
-						-- tamed and owned by parents' owner
-						ent2.child = true
-						ent2.tamed = true
-						ent2.owner = self.owner
 						ent2.base_texture = textures
 					end
 				end, self, ent)
@@ -2404,6 +2377,11 @@ function mob_class:do_states(dtime)
 			self:set_velocity(0)
 			self.state = "stand"
 			self:set_animation("stand")
+
+			-- try to turn so we are not stuck
+			yaw = yaw + random(-1, 1) * 1.5
+			yaw = self:set_yaw(yaw, 4)
+
 		else
 			self:set_velocity(self.run_velocity)
 			self:set_animation("walk")
@@ -3848,6 +3826,8 @@ function mobs:add_mob(pos, def)
 	if not ent then
 --print("[mobs] entity not found " .. def.name)
 		return false
+	else
+		effect(pos, 15, "tnt_smoke.png", 1, 2, 2, 15, 5)
 	end
 
 	if def.child then
@@ -4681,12 +4661,7 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 		end
 
 		-- increase health
-		self.health = self.health + 4
-
-		if self.health >= self.hp_max then
-
-			self.health = self.hp_max
-		end
+		self.health = min(self.health + 4, self.hp_max)
 
 		self.object:set_hp(self.health)
 
@@ -4743,8 +4718,7 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 
 	-- if mob has been tamed you can name it with a nametag
 	if item:get_name() == "mobs:nametag"
-	and (name == self.owner
-	or minetest.check_player_privs(name, "protection_bypass")) then
+	and (name == self.owner or minetest.check_player_privs(name, "protection_bypass")) then
 
 		-- store mob and nametag stack in external variables
 		mob_obj[name] = self
@@ -4753,13 +4727,9 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 		local tag = self.nametag or ""
 		local esc = minetest.formspec_escape
 
-		minetest.show_formspec(name, "mobs_nametag",
-			"size[8,4]" ..
-			"field[0.5,1;7.5,0;name;" ..
-			esc(FS("Enter name:")) ..
-			";" .. tag .. "]" ..
-			"button_exit[2.5,3.5;3,1;mob_rename;" ..
-			esc(FS("Rename")) .. "]")
+		minetest.show_formspec(name, "mobs_nametag", "size[8,4]"
+			.. "field[0.5,1;7.5,0;name;" .. esc(FS("Enter name:")) .. ";" .. tag .. "]"
+			.. "button_exit[2.5,3.5;3,1;mob_rename;" .. esc(FS("Rename")) .. "]")
 
 		return true
 	end
