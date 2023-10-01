@@ -11,7 +11,7 @@ local use_mc2 = minetest.get_modpath("mcl_core")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20230927",
+	version = "20230930",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -3125,6 +3125,27 @@ function mob_class:mob_staticdata()
 
 	if use_cmi then
 		self.serialized_cmi_components = cmi.serialize_components(self._cmi_components)
+	end
+
+	-- move existing variables to new initial_properties table for future compatibility
+	if not self.initial_properties then
+
+		self.initial_properties = {
+			hp_max = self.hp_max,
+			physical = self.physical,
+			collisionbox = self.collisionbox,
+			selectionbox = self.selectionbox,
+			visual = self.visual,
+			visual_size = self.visual_size,
+			mesh = self.mesh,
+			textures = self.textures,
+			make_footstep_sound = self.make_footstep_sound,
+			stepheight = self.stepheight,
+			glow = self.glow,
+			nametag = self.nametag,
+			damage_texture_modifier = self.damage_texture_modifier,
+			infotext = self.infotext
+		}
 	end
 
 	return minetest.serialize(clean_staticdata(self))
