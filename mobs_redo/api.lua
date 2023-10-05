@@ -11,7 +11,7 @@ local use_mc2 = minetest.get_modpath("mcl_core")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20230930",
+	version = "20231004",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -262,7 +262,8 @@ function mob_class:collision()
 
 	local pos = self.object:get_pos() ; if not pos then return {0, 0} end
 	local x, z = 0, 0
-	local width = -self.collisionbox[1] + self.collisionbox[4] + 0.5
+	local prop = self.object:get_properties()
+	local width = -prop.collisionbox[1] + prop.collisionbox[4] + 0.5
 
 	for _,object in ipairs(minetest.get_objects_inside_radius(pos, width)) do
 
@@ -350,12 +351,11 @@ function mob_class:set_velocity(v)
 	-- set velocity
 	local vel = self.object:get_velocity() or {x = 0, y = 0, z = 0}
 
-	local new_vel = {
+	self.object:set_velocity({
 		x = (sin(yaw) * -v) + c_x,
 		y = vel.y,
-		z = (cos(yaw) * v) + c_y}
-
-	self.object:set_velocity(new_vel)
+		z = (cos(yaw) * v) + c_y
+	})
 end
 
 -- global version of above function
@@ -733,7 +733,8 @@ local CHILD_GROW_TIME = 60 * 20 -- 20 minutes
 function mob_class:update_tag()
 
 	local col
-	local qua = self.hp_max / 6
+	local prop = self.object:get_properties()
+	local qua = prop.hp_max / 6
 
 	if self.health <= qua then
 		col = "#FF0000"
@@ -760,6 +761,7 @@ function mob_class:update_tag()
 	end
 
 	if self.protected then
+
 		if self.protected == 2 then
 			text = text .. "\nProtection: Level 2"
 		else
@@ -767,7 +769,7 @@ function mob_class:update_tag()
 		end
 	end
 
-	self.infotext = "Health: " .. self.health .. " / " .. self.hp_max
+	self.infotext = "Health: " .. self.health .. " / " .. prop.hp_max
 		.. (self.owner == "" and "" or "\nOwner: " .. self.owner)
 		.. text
 
@@ -1045,10 +1047,11 @@ function mob_class:is_at_cliff()
 
 	if not yaw then return false end
 
-	local dir_x = -sin(yaw) * (self.collisionbox[4] + 0.5)
-	local dir_z = cos(yaw) * (self.collisionbox[4] + 0.5)
+	local prop = self.object:get_properties()
+	local dir_x = -sin(yaw) * (prop.collisionbox[4] + 0.5)
+	local dir_z = cos(yaw) * (prop.collisionbox[4] + 0.5)
 	local pos = self.object:get_pos()
-	local ypos = pos.y + self.collisionbox[2] -- just above floor
+	local ypos = pos.y + prop.collisionbox[2] -- just above floor
 
 	local free_fall, blocker = minetest.line_of_sight(
 		{x = pos.x + dir_x, y = ypos, z = pos.z + dir_z},
@@ -1089,10 +1092,12 @@ function mob_class:do_env_damage()
 		return true
 	end
 
+	local prop = self.object:get_properties()
+
 	-- particle appears at random mob height
 	local py = {
 		x = pos.x,
-		y = pos.y + random(self.collisionbox[2], self.collisionbox[5]),
+		y = pos.y + random(prop.collisionbox[2], prop.collisionbox[5]),
 		z = pos.z
 	}
 
@@ -1382,9 +1387,9 @@ function mob_class:breed()
 				self.on_grown(self)
 			else
 				local pos = self.object:get_pos() ; if not pos then return end
-				local ent = self.object:get_luaentity()
+				local prop = self.object:get_properties()
 
-				pos.y = pos.y + (ent.collisionbox[2] * -1)
+				pos.y = pos.y + (prop.collisionbox[2] * -1) + 0.1
 
 				self.object:set_pos(pos)
 
@@ -1468,6 +1473,7 @@ function mob_class:breed()
 
 				-- have we reached active mob limit
 				if active_limit > 0 and active_mobs >= active_limit then
+
 					minetest.chat_send_player(self.owner,
 							S("Active Mob Limit Reached!")
 							.. "  (" .. active_mobs
@@ -1511,9 +1517,10 @@ function mob_class:breed()
 						-- using specific child texture (if found)
 						if self.child_texture then
 							textures = self.child_texture[1]
-							ent2.mommy_tex = self.base_texture
+							ent2.mommy_tex = self.base_texture -- when grown
 						end
 
+						ent2.object:set_properties({textures = textures})
 						ent2.base_texture = textures
 					end
 				end, self, ent)
@@ -1716,7 +1723,9 @@ function mob_class:smart_mobs(s, p, dist, dtime)
 		end, self)
 	end
 
-	if abs(vsubtract(s, target_pos).y) > self.stepheight then
+	local prop = self.object:get_properties()
+
+	if abs(vsubtract(s, target_pos).y) > prop.stepheight then
 
 		if height_switcher then
 			use_pathfind = true
@@ -1821,7 +1830,7 @@ function mob_class:smart_mobs(s, p, dist, dtime)
 						end
 					end
 
-					local sheight = ceil(self.collisionbox[5]) + 1
+					local sheight = ceil(prop.collisionbox[5]) + 1
 
 					-- assume mob is 2 blocks high so it digs above its head
 					s.y = s.y + sheight
@@ -1836,7 +1845,7 @@ function mob_class:smart_mobs(s, p, dist, dtime)
 				elseif p1.y < (s.y - 1) then
 
 					-- dig down
-					s.y = s.y - self.collisionbox[4] - 0.2
+					s.y = s.y - prop.collisionbox[4] - 0.2
 
 					can_dig_drop(s)
 
@@ -1892,8 +1901,7 @@ local function is_peaceful_player(player)
 	local player_name = player:get_player_name()
 
 	-- player priv enabled
-	if player_name
-	and minetest.check_player_privs(player_name, "peaceful_player") then
+	if player_name and minetest.check_player_privs(player_name, "peaceful_player") then
 		return true
 	end
 
@@ -2680,8 +2688,9 @@ function mob_class:do_states(dtime)
 				self:mob_sound(self.sounds.shoot_attack)
 
 				local p = self.object:get_pos()
+				local prop = self.object:get_properties()
 
-				p.y = p.y + (self.collisionbox[2] + self.collisionbox[5]) / 2
+				p.y = p.y + (prop.collisionbox[2] + prop.collisionbox[5]) / 2
 
 				if minetest.registered_entities[self.arrow] then
 
@@ -2918,8 +2927,9 @@ function mob_class:on_punch(hitter, tflp, tool_capabilities, dir, damage)
 			local pos = self.object:get_pos()
 			local blood = self.blood_texture
 			local amount = self.blood_amount
+			local prop = self.object:get_properties()
 
-			pos.y = pos.y + (-self.collisionbox[2] + self.collisionbox[5]) * .5
+			pos.y = pos.y + (-prop.collisionbox[2] + prop.collisionbox[5]) * .5
 
 			-- lots of damage = more blood :)
 			if damage > 10 then
@@ -3194,11 +3204,7 @@ function mob_class:mob_activate(staticdata, def, dtime)
 		end
 	end
 
-	-- force current model into mob
-	self.mesh = def.mesh
-	self.base_mesh = def.mesh
-	self.collisionbox = def.collisionbox
-	self.selectionbox = def.selectionbox
+	local prop = self.object:get_properties()
 
 	-- select random texture, set model and size
 	if not self.base_texture then
@@ -3208,26 +3214,18 @@ function mob_class:mob_activate(staticdata, def, dtime)
 			def.textures = {def.textures}
 		end
 
+		-- backup a few base settings
 		self.base_texture = def.textures and def.textures[random(#def.textures)]
-		self.base_mesh = def.mesh
-		self.base_size = self.visual_size
-		self.base_colbox = self.collisionbox
-		self.base_selbox = self.selectionbox
 	end
 
-	-- for current mobs that dont have this set
-	if not self.base_selbox then
-		self.base_selbox = self.selectionbox or self.base_colbox
-	end
-
-	-- set texture, model and size
+	-- get texture, model and size
 	local textures = self.base_texture
 	local mesh = self.base_mesh
 	local vis_size = self.base_size
 	local colbox = self.base_colbox
 	local selbox = self.base_selbox
 
-	-- specific texture if gotten
+	-- is there a specific texture if gotten
 	if self.gotten == true and def.gotten_texture then
 		textures = def.gotten_texture
 	end
@@ -3257,8 +3255,16 @@ function mob_class:mob_activate(staticdata, def, dtime)
 			self.base_selbox[5] * .5, self.base_selbox[6] * .5}
 	end
 
+	-- set mob size and textures
+	self.object:set_properties({
+		textures = textures,
+		visual_size = vis_size,
+		collisionbox = colbox,
+		selectionbox = selbox
+	})
+
 	if self.health == 0 then
-		self.health = random(self.hp_min, self.hp_max)
+		self.health = random(self.hp_min, prop.hp_max)
 	end
 
 	-- pathfinding init
@@ -3271,11 +3277,13 @@ function mob_class:mob_activate(staticdata, def, dtime)
 
 	-- Armor groups (immortal = 1 for custom damage handling)
 	local armor
+
 	if type(self.armor) == "table" then
 		armor = table_copy(self.armor)
 	else
 		armor = {fleshy = self.armor, immortal = 1}
 	end
+
 	self.object:set_armor_groups(armor)
 
 	-- mob defaults
@@ -3283,10 +3291,6 @@ function mob_class:mob_activate(staticdata, def, dtime)
 	self.old_health = self.health
 	self.sounds.distance = self.sounds.distance or 10
 	self.textures = textures
-	self.mesh = mesh
-	self.collisionbox = colbox
-	self.selectionbox = selbox
-	self.visual_size = vis_size
 	self.standing_in = "air"
 	self.standing_on = "air"
 
@@ -3294,7 +3298,7 @@ function mob_class:mob_activate(staticdata, def, dtime)
 	self.nametag = self.nametag or def.nametag
 
 	-- set anything changed above
-	self.object:set_properties(self)
+--	self.object:set_properties(self)
 	self:set_yaw((random(0, 360) - 180) / 180 * pi, 6)
 	self:update_tag()
 	self:set_animation("stand")
@@ -3304,7 +3308,7 @@ function mob_class:mob_activate(staticdata, def, dtime)
 
 	-- set 5.x flag to remove monsters when map area unloaded
 	if remove_far and self.type == "monster" and not self.tamed then
-		self.static_save = false
+		self.object:set_properties({static_save = false})
 	end
 
 	-- run on_spawn function if found
@@ -3368,9 +3372,10 @@ function mob_class:get_nodes()
 
 	local pos = self.object:get_pos()
 	local yaw = self.object:get_yaw()
+	local prop = self.object:get_properties()
 
 	-- child mobs have a lower y_level
-	local y_level = self.child and self.collisionbox[2] * 0.5 or self.collisionbox[2]
+	local y_level = self.child and prop.collisionbox[2] * 0.5 or prop.collisionbox[2]
 
 	self.standing_in = node_ok({
 		x = pos.x, y = pos.y + y_level + 0.25, z = pos.z}, "air").name
@@ -3379,8 +3384,8 @@ function mob_class:get_nodes()
 		x = pos.x, y = pos.y + y_level - 0.25, z = pos.z}, "air").name
 
 	-- find front position
-	local dir_x = -sin(yaw) * (self.collisionbox[4] + 0.5)
-	local dir_z = cos(yaw) * (self.collisionbox[4] + 0.5)
+	local dir_x = -sin(yaw) * (prop.collisionbox[4] + 0.5)
+	local dir_z = cos(yaw) * (prop.collisionbox[4] + 0.5)
 
 	-- nodes in front of mob and front/above
 	self.looking_at = node_ok({
@@ -3614,6 +3619,13 @@ minetest.register_entity(":" .. name, setmetatable({
 	visual = def.visual,
 	visual_size = def.visual_size or {x = 1, y = 1},
 	mesh = def.mesh,
+
+	-- backup entity model and size
+	base_mesh = def.mesh,
+	base_colbox = collisionbox,
+	base_selbox = def.selectionbox or collisionbox,
+	base_size = def.visual_size or {x = 1, y = 1},
+
 	makes_footstep_sound = def.makes_footstep_sound,
 	view_range = def.view_range,
 	walk_velocity = def.walk_velocity,
@@ -3745,7 +3757,7 @@ end
 local function can_spawn(pos, name)
 
 	local ent = minetest.registered_entities[name]
-	local width_x = max(1, ceil(ent.collisionbox[4] - ent.collisionbox[1]))
+	local width_x = max(1, ceil(ent.base_colbox[4] - ent.base_colbox[1]))
 	local min_x, max_x
 
 	if width_x % 2 == 0 then
@@ -3756,7 +3768,7 @@ local function can_spawn(pos, name)
 		min_x = -max_x
 	end
 
-	local width_z = max(1, ceil(ent.collisionbox[6] - ent.collisionbox[3]))
+	local width_z = max(1, ceil(ent.base_colbox[6] - ent.base_colbox[3]))
 	local min_z, max_z
 
 	if width_z % 2 == 0 then
@@ -3767,7 +3779,7 @@ local function can_spawn(pos, name)
 		min_z = -max_z
 	end
 
-	local max_y = max(0, ceil(ent.collisionbox[5] - ent.collisionbox[2]) - 1)
+	local max_y = max(0, ceil(ent.base_colbox[5] - ent.base_colbox[2]) - 1)
 	local pos2
 
 	for y = 0, max_y do
@@ -3900,6 +3912,7 @@ function mobs:add_mob(pos, def)
 			def.nametag = def.nametag:sub(1, 64)
 		end
 
+		mob:set_properties({nametag = def.nametag})
 		ent.nametag = def.nametag
 
 		ent:update_tag()
@@ -4060,7 +4073,7 @@ function mobs:spawn_specific(name, nodes, neighbors, min_light, max_light, inter
 		if mob_area_spawn ~= true then
 
 			-- do we have enough height clearance to spawn mob?
-			local height = max(0, ent.collisionbox[5] - ent.collisionbox[2])
+			local height = max(0, ent.base_colbox[5] - ent.base_colbox[2])
 
 			for n = 0, floor(height) do
 
@@ -4651,8 +4664,9 @@ function mobs:protect(self, clicker)
 	end
 
 	local pos = self.object:get_pos()
+	local prop = self.object:get_properties()
 
-	pos.y = pos.y + self.collisionbox[2] + 0.5
+	pos.y = pos.y + prop.collisionbox[2] + 0.5
 
 	effect(self.object:get_pos(), 25, "mobs_protect_particle.png", 0.5, 4, 2, 15)
 
@@ -4681,8 +4695,10 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 			clicker:set_wielded_item(item)
 		end
 
+		local prop = self.object:get_properties()
+
 		-- increase health
-		self.health = min(self.health + 4, self.hp_max)
+		self.health = min(self.health + 4, prop.hp_max)
 
 		self.object:set_hp(self.health)
 
@@ -4745,7 +4761,8 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 		mob_obj[name] = self
 		mob_sta[name] = item
 
-		local tag = self.nametag or ""
+		local prop = self.object:get_properties()
+		local tag = prop.nametag or ""
 		local esc = minetest.formspec_escape
 
 		minetest.show_formspec(name, "mobs_nametag", "size[8,4]"
@@ -4800,8 +4817,8 @@ minetest.register_on_player_receive_fields(function(player, formname, fields)
 		end
 
 		-- update nametag
+		mob_obj[name].object:set_properties({nametag = fields.name})
 		mob_obj[name].nametag = fields.name
-
 		mob_obj[name]:update_tag()
 
 		-- if not in creative then take item
