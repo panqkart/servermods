@@ -15,7 +15,7 @@ local repos = {
     },
     {
         name = "mobs_redo",
-        url = "https://notabug.org/TenPlus1/mobs_redo",
+        url = "https://codeberg.org/tenplus1/mobs_redo",
         dir = "",
         def_branch = "master"
     }
