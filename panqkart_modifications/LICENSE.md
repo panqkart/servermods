@@ -9,7 +9,7 @@ See their license/readme file for more information about that.
 
 **If not yet specified, code falls under the license below.**
 
-Copyright (C) 2022 David Leal <halfpacho@gmail.com>
+Copyright (C) 2022 David Leal <halfpacho@gmail.com>\
 Copyright (C) Various other Minetest developers and contributors
 
                   GNU LESSER GENERAL PUBLIC LICENSE
