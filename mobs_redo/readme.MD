@@ -24,6 +24,24 @@ https://forum.minetest.net/viewtopic.php?f=11&t=9917
 
 ## Changelog
 
+### Version 1.61
+
+* Fixed mob damage when riding mobs
+* Added entity:is_inside(itemtable) function (thx cora)
+* Added self.attack_patience value so mobs stop attacking unseen players
+* Added self.homing so that arrows follow player when visible
+* Added support for Visual Harm 1ndicators mod to show health bars
+
+### Version 1.60
+
+* Move mob and arrow entities to use initial_properties
+* Spawn eggs check if mob is available when creating
+* Used get/set_properties() within API for mob properties
+* Moved nametag variable to self._nametag
+* Tidied breeding function
+* Better MineClone2 / MineClonia support added
+* Tweaked and tidied code in places
+
 ### Version 1.57
 
 * Added 'injured' animation when mob hurt
@@ -96,7 +114,7 @@ https://forum.minetest.net/viewtopic.php?f=11&t=9917
 
 ### Version 1.48
 
-* Added `mobs:set_velocity(self, velocity)` global function
+* Added `mobs:set_velocity(self, velocity)` global function [deprecated]
 
 ### Version 1.47
 
