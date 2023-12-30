@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20231205",
+	version = "20231229",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -3124,6 +3124,21 @@ function mob_class:mob_staticdata()
 end
 
 
+local is_property_name = {
+	hp_max = true,
+	physical = true,
+	collide_with_objects = true,
+	collisionbox = true,
+	selectionbox = true,
+	pointable = true,
+	visual_size = true,
+	textures = true,
+	is_visible = true,
+	stepheight = true,
+	glow = true,
+	show_on_minimap = true,
+}
+
 -- activate mob and reload settings
 function mob_class:mob_activate(staticdata, def, dtime)
 
@@ -3161,7 +3176,13 @@ function mob_class:mob_activate(staticdata, def, dtime)
 			t = type(stat)
 
 			if t ~= "function" and t ~= "nil" and t ~= "userdata" then
-				self[_] = stat
+
+				if is_property_name[_] then
+
+					self.object:set_properties({[_] = stat})
+				else
+					self[_] = stat
+				end
 			end
 		end
 	end
