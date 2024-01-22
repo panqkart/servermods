@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20231229",
+	version = "20240121",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -4814,7 +4814,7 @@ function mobs:feed_tame(self, clicker, feed_count, breed, tame)
 		local esc = minetest.formspec_escape
 
 		minetest.show_formspec(name, "mobs_nametag", "size[8,4]"
-			.. "field[0.5,1;7.5,0;name;" .. esc(FS("Enter name:")) .. ";" .. tag .. "]"
+			.. "field[0.5,1;7.5,0;name;" .. esc(FS("Enter name:")) .. ";" .. esc(tag) .. "]"
 			.. "button_exit[2.5,3.5;3,1;mob_rename;" .. esc(FS("Rename")) .. "]")
 
 		return true
