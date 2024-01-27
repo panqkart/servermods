@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240121",
+	version = "20240126",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -146,6 +146,7 @@ mobs.mob_class = {
 	lava_damage = 4,
 	fire_damage = 4,
 	air_damage = 0,
+	node_damage = true,
 	suffocation = 2,
 	fall_damage = 1,
 	fall_speed = -10, -- must be lower than -2 (default: -10)
@@ -1088,7 +1089,7 @@ function mob_class:do_env_damage()
 		end
 
 	-- damage_per_second node check (not fire and lava)
-	elseif nodef.damage_per_second and nodef.damage_per_second ~= 0
+	elseif self.node_damage and nodef.damage_per_second and nodef.damage_per_second ~= 0
 	and nodef.groups.lava == nil and nodef.groups.fire == nil then
 
 		self.health = self.health - nodef.damage_per_second
@@ -3622,6 +3623,7 @@ minetest.register_entity(":" .. name, setmetatable({
 	lava_damage = def.lava_damage,
 	fire_damage = def.fire_damage,
 	air_damage = def.air_damage,
+	node_damage = def.node_damage,
 	suffocation = def.suffocation,
 	fall_damage = def.fall_damage,
 	fall_speed = def.fall_speed,
