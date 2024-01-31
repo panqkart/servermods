@@ -21,9 +21,10 @@ local items = {
 	meat_cooked = mc2 and "mcl_mobitems:cooked_beef" or "group:food_meat",
 }
 
+
 -- name tag
 minetest.register_craftitem("mobs:nametag", {
-	description = S("Name Tag"),
+	description = S("Name Tag") .. " " .. S("\nRight-click Mobs Redo mob to apply"),
 	inventory_image = "mobs_nametag.png",
 	groups = {flammable = 2, nametag = 1}
 })
