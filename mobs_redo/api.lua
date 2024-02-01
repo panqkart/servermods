@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240126",
+	version = "20240130",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -655,6 +655,9 @@ function mob_class:update_tag(newname)
 	local prop = self.object:get_properties()
 	local qua = prop.hp_max / 6
 
+	local old_nametag = prop.nametag
+	local old_nametag_color = minetest.colorspec_to_bytes(prop.nametag_color)
+
 	-- backwards compatibility
 	if self.nametag and self.nametag ~= "" then
 		newname = self.nametag
@@ -680,7 +683,10 @@ function mob_class:update_tag(newname)
 			col = "#00FF00"
 		end
 
-		self.object:set_properties({nametag = self._nametag, nametag_color = col})
+		if self._nametag ~= old_nametag
+		or minetest.colorspec_to_bytes(col) ~= old_nametag_color then
+			self.object:set_properties({nametag = self._nametag, nametag_color = col})
+		end
 	end
 
 	local text = ""
@@ -709,7 +715,9 @@ function mob_class:update_tag(newname)
 		.. text
 
 	-- set infotext changes
-	self.object:set_properties({infotext = self.infotext})
+	if self.infotext ~= prop.infotext then
+		self.object:set_properties({infotext = self.infotext})
+	end
 end
 
 
