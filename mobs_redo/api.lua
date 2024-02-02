@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240130",
+	version = "20240201",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -656,7 +656,7 @@ function mob_class:update_tag(newname)
 	local qua = prop.hp_max / 6
 
 	local old_nametag = prop.nametag
-	local old_nametag_color = minetest.colorspec_to_bytes(prop.nametag_color)
+	local old_nametag_color = self.nametag_col
 
 	-- backwards compatibility
 	if self.nametag and self.nametag ~= "" then
@@ -670,22 +670,22 @@ function mob_class:update_tag(newname)
 
 		-- choose tag colour depending on mob health
 		if self.health <= qua then
-			col = "#FF0000"
+			self.nametag_col = "#FF0000"
 		elseif self.health <= (qua * 2) then
-			col = "#FF7A00"
+			self.nametag_col = "#FF7A00"
 		elseif self.health <= (qua * 3) then
-			col = "#FFB500"
+			self.nametag_col = "#FFB500"
 		elseif self.health <= (qua * 4) then
-			col = "#FFFF00"
+			self.nametag_col = "#FFFF00"
 		elseif self.health <= (qua * 5) then
-			col = "#B4FF00"
+			self.nametag_col = "#B4FF00"
 		elseif self.health > (qua * 5) then
-			col = "#00FF00"
+			self.nametag_col = "#00FF00"
 		end
 
-		if self._nametag ~= old_nametag
-		or minetest.colorspec_to_bytes(col) ~= old_nametag_color then
-			self.object:set_properties({nametag = self._nametag, nametag_color = col})
+		if self._nametag ~= old_nametag or self.nametag_col ~= old_nametag_color then
+			self.object:set_properties({
+					nametag = self._nametag, nametag_color = self.nametag_col})
 		end
 	end
 
