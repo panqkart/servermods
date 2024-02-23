@@ -19,4 +19,3 @@ read_globals = {
 
 -- Ignore Mobs Redo warnings. Those should be fixed/reported upstream.
 files["mobs_redo/*.lua"].ignore = { "" }
-files["mobs_animal/locale/po2tr.lua"].ignore = { "" }
