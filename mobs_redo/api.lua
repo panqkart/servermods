@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240220",
+	version = "20240223",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -265,14 +265,16 @@ function mob_class:collision()
 	local x, z = 0, 0
 	local prop = self.object:get_properties()
 	local width = -prop.collisionbox[1] + prop.collisionbox[4] + 0.5
+	local pos2, vec, force
 
-	for _,object in pairs(minetest.get_objects_inside_radius(pos, width)) do
+	for _,player in pairs(minetest.get_connected_players()) do
 
-		if is_player(object) then
+		pos2 = player:get_pos()
 
-			local pos2 = object:get_pos()
-			local vec  = {x = pos.x - pos2.x, z = pos.z - pos2.z}
-			local force = (width + 0.5) - vector.distance(
+		if pos2:distance(pos) < width then
+
+			vec  = {x = pos.x - pos2.x, z = pos.z - pos2.z}
+			force = (width + 0.5) - vector.distance(
 				{x = pos.x, y = 0, z = pos.z},
 				{x = pos2.x, y = 0, z = pos2.z})
 
@@ -280,6 +282,7 @@ function mob_class:collision()
 			z = z + (vec.z * force)
 		end
 	end
+
 
 	return({x, z})
 end
@@ -2243,12 +2246,13 @@ function mob_class:do_states(dtime)
 
 			local lp
 			local s = self.object:get_pos()
-			local objs = minetest.get_objects_inside_radius(s, 3)
 
-			for n = 1, #objs do
+			for _,player in pairs(minetest.get_connected_players()) do
 
-				if is_player(objs[n]) then
-					lp = objs[n]:get_pos()
+				local player_pos = player:get_pos()
+
+				if player_pos:distance(s) <= 3 then
+					lp = player_pos
 					break
 				end
 			end
@@ -3334,14 +3338,10 @@ function mob_class:mob_expire(pos, dtime)
 		if self.lifetimer <= 0 then
 
 			-- only despawn away from player
-			local objs = minetest.get_objects_inside_radius(pos, 15)
+			for _,player in pairs(minetest.get_connected_players()) do
 
-			for n = 1, #objs do
-
-				if is_player(objs[n]) then
-
+				if player:get_pos():distance(pos) <= 15 then
 					self.lifetimer = 20
-
 					return
 				end
 			end
@@ -4064,11 +4064,9 @@ function mobs:spawn_specific(name, nodes, neighbors, min_light, max_light, inter
 		end
 
 		-- only spawn a set distance away from player
-		local objs = minetest.get_objects_inside_radius(pos, mob_nospawn_range)
+		for _,player in pairs(minetest.get_connected_players()) do
 
-		for n = 1, #objs do
-
-			if is_player(objs[n]) then
+			if player:get_pos():distance(pos) <= mob_nospawn_range then
 --print("--- player too close", name)
 				return
 			end
