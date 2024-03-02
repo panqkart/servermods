@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240223",
+	version = "20240301",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -191,6 +191,7 @@ mobs.mob_class = {
 	attack_animals = false,
 	attack_players = true,
 	attack_npcs = true,
+	attack_ignore = nil,
 	friendly_fire = true,
 	facing_fence = false,
 	_breed_countdown = nil,
@@ -1908,8 +1909,9 @@ function mob_class:general_attack()
 		-- or are we a mob?
 		elseif ent and ent._cmi_is_mob then
 
-			-- remove mobs not to attack
+			-- remove mobs to not attack
 			if self.name == ent.name
+			or check_for(ent.name, self.attack_ignore)
 			or (not self.attack_animals and ent.type == "animal")
 			or (not self.attack_monsters and ent.type == "monster")
 			or (not self.attack_npcs and ent.type == "npc")
@@ -3688,6 +3690,7 @@ minetest.register_entity(":" .. name, setmetatable({
 	attack_animals = def.attack_animals,
 	attack_players = def.attack_players,
 	attack_npcs = def.attack_npcs,
+	attack_ignore = def.attack_ignore,
 	specific_attack = def.specific_attack,
 	friendly_fire = def.friendly_fire,
 	runaway_from = def.runaway_from,

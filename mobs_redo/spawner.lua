@@ -21,6 +21,7 @@ minetest.register_node("mobs:spawner", {
 	walkable = true,
 	description = S("Mob Spawner"),
 	groups = {cracky = 1, pickaxey = 3},
+	is_ground_content = false,
 	_mcl_hardness = 1,
 	_mcl_blast_resistance = 5,
 
