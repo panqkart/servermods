@@ -12,11 +12,9 @@ read_globals = {
     table = {fields = {"copy", "getn"}},
 
     "ItemStack", "intllib", "cmi",
-    "invisibility", "toolranks", "tnt",
-
-    "vector", "farming", "player_monoids", "pova"
+    "invisibility", "toolranks", "tnt", "vector",
+    "farming", "player_monoids", "pova", "abripanes"
 }
 
 -- Ignore Mobs Redo warnings. Those should be fixed/reported upstream.
 files["mobs_redo/*.lua"].ignore = { "" }
-files["mobs_animal/locale/po2tr.lua"].ignore = { "" }

@@ -1,0 +1,9 @@
+Licenses
+--------
+
+Unless otherwise stated:
+
+- MIT for code. https://opensource.org/license/mit/
+- CC BY-SA 4.0 International for media. https://creativecommons.org/licenses/by-sa/4.0/
+
+See every specific mod's license and readme files for full information.

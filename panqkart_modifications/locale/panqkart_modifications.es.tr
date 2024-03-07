@@ -1,5 +1,6 @@
 # textdomain: panqkart_modifications
 
-You're not allowed to use unless you have higher privileges. Contact the server administrator if this is a mistake.=No estas permitido usar las camas a menos que tengas privilegios más altos. Contacta al administrador del servidor si esto es un error.
-Can remove and add nodes, while doesn't have administrator privileges.=Puede quitar y poner bloques, pero no tiene privilegios de administrador.
-
+You're not allowed to use beds unless you have higher privileges. Contact the server administrator if this is a mistake.=No estás permitido usar las camas a menos que tengas privilegios más altos. Contacta al administrador del servidor si esto es un error.
+Can remove and add nodes, but doesn't have administrator privileges.=Puede quitar y poner bloques, pero no tiene privilegios de administrador.
+You're not allowed to place nodes unless you are a staff/builder. Contact the server administrator if this is a mistake.=No estás permitido poner bloques a menos que seas administrador/constructor. Contacta al administrador del servidor si esto es un error.
+You're not allowed to dig nodes unless you are a staff/builder. Contact the server administrator if this is a mistake.=No estás permitido romper bloques a menos que seas un administrador/constructor. Contacta al administrador del servidor si esto es un error.

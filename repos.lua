@@ -1,5 +1,5 @@
 local config = {
-    labels_update = "dependencies",
+    labels_update = "dependencies"
 }
 
 local repos = {
@@ -9,15 +9,15 @@ local repos = {
         dir = ""
     },
     {
-        name = "mobs_animal",
-        url = "https://github.com/panqkart/mobs_animal",
-        dir = ""
-    },
-    {
         name = "mobs_redo",
         url = "https://codeberg.org/tenplus1/mobs_redo",
         dir = "",
         def_branch = "master"
+    },
+    {
+        name = "minetest-no_sign_text_removal",
+        url = "https://github.com/Panquesito7/minetest-no_sign_text_removal",
+        dir = ""
     }
 }
 
