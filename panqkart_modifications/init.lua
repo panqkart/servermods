@@ -255,12 +255,31 @@ if minetest.get_modpath("mobs_redo") or minetest.get_modpath("mobs") then
 		return self:check_for_death({type = "unknown"})
 	end
 end
-
 -- End: code taken and modified from https://notabug.org/TenPlus1/mobs_redo
 
 -------------------------------
 -- Privileges/miscellaneous --
 -------------------------------
+
+if minetest.get_modpath("abripanes") and minetest.get_modpath("dye") then
+	abripanes.register_pane("abriglass_pane_dark", {
+		description = "Dark Glass Pane",
+		textures = {"abriglass_plainglass.png^[colorize:#292421:122", "abriglass_plainglass.png^[colorize:#292421:122",
+			"abriglass_plainglass.png^[colorize:#292421:122"},
+		groups = {cracky = 3},
+		use_texture_alpha = "blend",
+		wield_image = "abriglass_plainglass.png^[colorize:#292421:122",
+		inventory_image = "abriglass_plainglass.png^[colorize:#292421:122",
+		sounds = default.node_sound_glass_defaults(),
+		recipe = {
+			{ "default:glass", "default:glass", "default:glass" },
+			{ "default:glass", "default:glass", "default:glass" },
+			{ "", 			   "dye:black", 	"" }
+		}
+	})
+
+	minetest.register_alias("xpanes:abriglass_pane_dark_flat", "xpanes:abriglass_pane_black_flat")
+end
 
 minetest.register_privilege("builder", {
     description = S("Can remove and add nodes, but doesn't have administrator privileges."),

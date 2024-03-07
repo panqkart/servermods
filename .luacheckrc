@@ -12,9 +12,8 @@ read_globals = {
     table = {fields = {"copy", "getn"}},
 
     "ItemStack", "intllib", "cmi",
-    "invisibility", "toolranks", "tnt",
-
-    "vector", "farming", "player_monoids", "pova"
+    "invisibility", "toolranks", "tnt", "vector",
+    "farming", "player_monoids", "pova", "abripanes"
 }
 
 -- Ignore Mobs Redo warnings. Those should be fixed/reported upstream.
