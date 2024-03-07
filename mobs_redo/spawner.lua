@@ -20,7 +20,10 @@ minetest.register_node("mobs:spawner", {
 	paramtype = "light",
 	walkable = true,
 	description = S("Mob Spawner"),
-	groups = {cracky = 1},
+	groups = {cracky = 1, pickaxey = 3},
+	is_ground_content = false,
+	_mcl_hardness = 1,
+	_mcl_blast_resistance = 5,
 
 	on_construct = function(pos)
 
@@ -148,24 +151,26 @@ minetest.register_abm({
 			return
 		end
 
-		-- spawn mob if player detected and in range
+		-- when player distance above 0, spawn mob if player detected and in range
 		if pla > 0 then
 
-			local in_range = 0
-			local objsp = minetest.get_objects_inside_radius(pos, pla)
+			local in_range, player
+			local players = minetest.get_connected_players()
 
-			for _, oir in pairs(objsp) do
+			for i = 1, #players do
 
-				if is_player(oir) then
+				player = players[i]
 
-					in_range = 1
+				if player:get_pos():distance(pos) <= pla then
+
+					in_range = true
 
 					break
 				end
 			end
 
 			-- player not found
-			if in_range == 0 then
+			if not in_range then
 				return
 			end
 		end
