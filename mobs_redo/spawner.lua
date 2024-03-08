@@ -11,6 +11,16 @@ local function is_player(player)
 end
 
 
+local get_distance = function(a, b)
+
+	if not a or not b then return 50 end -- nil check and default distance
+
+	local x, y, z = a.x - b.x, a.y - b.y, a.z - b.z
+
+	return square(x * x + y * y + z * z)
+end
+
+
 -- mob spawner
 local spawner_default = "mobs_animal:pumba 10 15 0 0 0"
 
@@ -161,7 +171,7 @@ minetest.register_abm({
 
 				player = players[i]
 
-				if player:get_pos():distance(pos) <= pla then
+				if get_distance(player:get_pos(), pos) <= pla then
 
 					in_range = true
 
