@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240301",
+	version = "20240303",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -130,6 +130,7 @@ local creatura = minetest.get_modpath("creatura") and
 
 
 mobs.mob_class = {
+	state = "stand",
 	fly_in = "air",
 	owner = "",
 	order = "",
@@ -272,7 +273,7 @@ function mob_class:collision()
 
 		pos2 = player:get_pos()
 
-		if pos2:distance(pos) < width then
+		if get_distance(pos2, pos) < width then
 
 			vec  = {x = pos.x - pos2.x, z = pos.z - pos2.z}
 			force = (width + 0.5) - vector.distance(
@@ -2253,7 +2254,7 @@ function mob_class:do_states(dtime)
 
 				local player_pos = player:get_pos()
 
-				if player_pos:distance(s) <= 3 then
+				if get_distance(player_pos, s) <= 3 then
 					lp = player_pos
 					break
 				end
@@ -3342,7 +3343,7 @@ function mob_class:mob_expire(pos, dtime)
 			-- only despawn away from player
 			for _,player in pairs(minetest.get_connected_players()) do
 
-				if player:get_pos():distance(pos) <= 15 then
+				if get_distance(player:get_pos(), pos) <= 15 then
 					self.lifetimer = 20
 					return
 				end
@@ -4069,7 +4070,7 @@ function mobs:spawn_specific(name, nodes, neighbors, min_light, max_light, inter
 		-- only spawn a set distance away from player
 		for _,player in pairs(minetest.get_connected_players()) do
 
-			if player:get_pos():distance(pos) <= mob_nospawn_range then
+			if get_distance(player:get_pos(), pos) <= mob_nospawn_range then
 --print("--- player too close", name)
 				return
 			end
