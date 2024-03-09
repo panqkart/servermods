@@ -157,9 +157,9 @@ minetest.register_craftitem("mobs:saddle", {
 minetest.register_craft({
 	output = "mobs:saddle",
 	recipe = {
-		{"mobs:leather", "mobs:leather", "mobs:leather"},
-		{"mobs:leather", items.steel_ingot, "mobs:leather"},
-		{"mobs:leather", items.steel_ingot, "mobs:leather"}
+		{"group:leather", "group:leather", "group:leather"},
+		{"group:leather", items.steel_ingot, "group:leather"},
+		{"group:leather", items.steel_ingot, "group:leather"}
 	}
 })
 

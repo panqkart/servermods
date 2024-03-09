@@ -10,6 +10,7 @@ local function is_player(player)
 	end
 end
 
+local square = math.sqrt
 
 local get_distance = function(a, b)
 
