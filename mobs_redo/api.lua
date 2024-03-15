@@ -14,7 +14,7 @@ local use_vh1 = minetest.get_modpath("visual_harm_1ndicators")
 -- Global
 mobs = {
 	mod = "redo",
-	version = "20240303",
+	version = "20240312",
 	translate = S,
 	invis = minetest.global_exists("invisibility") and invisibility or {},
 	node_snow = minetest.registered_aliases["mapgen_snow"]
@@ -717,6 +717,7 @@ function mob_class:update_tag(newname)
 
 	self.infotext = "Health: " .. self.health .. " / " .. prop.hp_max
 		.. (self.owner == "" and "" or "\nOwner: " .. self.owner)
+		.. ("\nEntity: " .. self.name)
 		.. text
 
 	-- set infotext changes
